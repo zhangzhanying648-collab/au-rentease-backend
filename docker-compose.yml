@@ -1,0 +1,59 @@
+#指定了 Docker Compose 文件的版本。3.8 是一个非常稳定且广泛使用的版本，支持绝大多数现代 Docker 特性。
+#version: '3.8'
+
+#services 下面定义了你要启动的容器。这里定义了一个名叫 postgres-db 的服务（名字可以自己随便取，代表你的数据库服务）。
+services:
+  postgres-db:
+    #image: 指定使用哪个官方镜像。这里用的是 PostgreSQL 15 版本。
+    #后面的 -alpine 是一个关键点——它代表 Alpine Linux 极简操作系统。这意味着这个数据库镜像体积非常小（通常只有几十 MB），
+    #启动极快，省内存。
+    image: postgres:15-alpine
+    #container_name: 给运行起来的容器起一个固定的名字叫 rentease-postgres。
+    #如果不写，Docker 会随机生成一个很难记的名字（比如 project_postgres-db_1）。
+    container_name: rentease-postgres
+    #这是最容易让人混淆的地方，它的格式是 "宿主机端口:容器内端口"。
+    #这行配置把容器的 5432 映射到了你真实电脑（宿主机）的 5432 端口。
+    #效果： 启动后，你可以在电脑上用连接工具（如 DBeaver、Navicat）
+    #或者你的 Spring Boot 代码，直接访问 localhost:5432 就能连上这个容器里的数据库。
+    ports:
+      - "5432:5432"
+    #这是 PostgreSQL 官方镜像预留的初始化参数。当容器第一次启动时，它会自动帮你做好以下初始化工作：
+    #
+    #创建一个名为 rentease_db 的数据库。
+    #
+    #创建一个管理员账号，用户名是 rentease_admin。
+    #
+    #设置该账号的密码为 123456。
+    environment:
+      POSTGRES_DB: rentease_db
+      POSTGRES_USER: rentease_admin
+      POSTGRES_PASSWORD: 123456
+    #这是最重要的一步。容器的生命周期是短暂的，
+    #如果不用 volumes，一旦你关闭或者删除了这个 Docker 容器，你存在数据库里的所有数据都会瞬间灰飞烟灭。
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
+  # 澳洲大厂云原生开发标配：LocalStack虚拟AWS沙盒
+  localstack:
+#    image: localstack/localstack:latest
+    # 🌟 核心修复 1：不要用 latest！改成固定的 3.0 版本（或者 3.4.0）
+    # 这个版本是纯净的社区免费版，绝不会因为没有 License Token 而无理取闹地闪退
+    image: localstack/localstack:3.0
+    container_name: rentease-aws-sandbox
+    # 💡 针对 Mac M系列芯片增加这行可以大幅提升稳定性（Windows加上也完全无害）
+    platform: linux/amd64
+    ports:
+      - "4566:4566"     # AWS所有服务(S3,SQS,SNS)等统一在这个端口
+    # 🌟 修复点：改用干净的冒号键值对，彻底防御注释被误解析的Bug
+    environment:
+      SERVICES: s3      # 告诉沙盒，今天要启动S3对象存储服务
+      AWS_DEFAULT_REGION: ap-southeast-2 # 贴合澳洲本地，设为悉尼区域
+    volumes:
+      - localstack:/var/lib/localstack
+
+volumes:
+  pgdata:
+  localstack:
+
+

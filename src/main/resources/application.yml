@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: au-rentease-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rentease_db
+    username: rentease_admin
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # 💡 澳洲大厂生产铁律：坚决不允许使用 update 自建表
+      ddl-auto: validate
+    show-sql: true
+
+  liquibase:
+    enabled: true
+    # 💡 声明主版本控制文件的路径
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+app:
+  jwt:
+    # 🌟 意思是：优先读取名为 JWT_SECRET 的环境变量，如果系统里没有这个环境变量，就用冒号后面的长字符串
+    secret: ${JWT_SECRET:AustraliaBrisbaneGoldCoastMelbourneSydneyPropertyRentEaseSecretKey}
+    expiration: 86400000 #24小时的毫秒数
+
+aws:
+  region: ap-southeast-2   #悉尼地区
+  s3:
+    endpoint: http://localhost:4566  #指向本地的Docker沙盒
+    bucket-name: rentease-property-photos #我们的专属“桶”名称
+

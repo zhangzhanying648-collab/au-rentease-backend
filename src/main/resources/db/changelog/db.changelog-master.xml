@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <include file="db/changelog/changes/v1.0.0_create_properties_table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/2026/05/28-01-changelog.xml"/>
+    <include file="db/changelog/2026/05/v1.0.1_insert_test_properties.xml"/>
+<!--    含义：路径寻址模式。当设为 false 时，意味着 file 属性里填写的路径不是相对于当前主文件的相对路径，
+而是相对于整个项目类路径（Classpath，即 src/main/resources/）的绝对根路径。-->
+    <include file="db/changelog/changes/v1.1.0_create_users_table.xml" relativeToChangelogFile="false"/>
+
+</databaseChangeLog>

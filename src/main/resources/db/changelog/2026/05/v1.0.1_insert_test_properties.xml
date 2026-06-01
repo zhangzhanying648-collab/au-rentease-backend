@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="v1.0.1-insert-sunnybank-property" author="alex">
+        <insert tableName="properties">
+            <column name="title" value="Modern House near Shopping Centre"/>
+            <column name="property_type" value="house"/>
+            <column name="price_per_week" value="650.00"/>
+            <column name="bedrooms" value="4"/>
+            <column name="bathrooms" value="2"/>
+            <column name="car_spaces" value="2"/>
+            <column name="street_address" value="123 Mains Road"/>
+            <column name="suburb" value="Sunnybank"/>
+            <column name="state" value="QLD"/>
+            <column name="postcode" value="4109"/>
+            <column name="status" value="AVAILABLE"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
