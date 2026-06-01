@@ -1,5 +1,5 @@
 #阶段一.纯净的云端打包和测试环境（Build Stage)
-FROM maven:3.8.8-eclipse-temurin-17 AS builder
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
 #避坑：先复制pom.xml下载依赖，利用Docker的缓存机制
@@ -15,7 +15,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests=false
 
 #阶段二. 极度精简，绝对安全的生产运行环境（Run stage）
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 #安全审计的死穴：大厂禁止用root权限运行java，我们创建一个名为rentease的普通系统用户
@@ -32,4 +32,5 @@ USER rentease
 EXPOSE 8080
 
 #生产级安全平滑启动命令
-ENTRYPOINT ["java", "-jar", "-Djava.security.egd=file:/dev/./urandom", "app.jar"]
+#ENTRYPOINT ["java", "-jar", "-Djava.security.egd=file:/dev/./urandom", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
