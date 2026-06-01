@@ -12,7 +12,7 @@ jobs:
     #告诉Github：在云端给我拉起一台最新版的ubuntu虚拟机作为编译环境
     runs-on: ubuntu-latest
 
-    step:
+    steps:
       #1. 把源码checkout到云端
       - name: Checkout Source Code
         uses: actions/checkout@v3
