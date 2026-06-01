@@ -21,10 +21,10 @@ jobs:
         uses: actions/checkout@v4
 
       #2. 在云端配置java17的运行环境
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: 'maven' #开启maven缓存，第二次跑流水线时几秒钟搞定
 
