@@ -35,7 +35,7 @@ jobs:
       #4. 如果测试全部通过，云端启动Docker编译，检测Dockerfile是否完好
       - name: Build Production Docker Image
         run:
-          docker build -t au-rentease-backend:latest
+          docker build -t au-rentease-backend:latest .
           echo "Success! Production Docker Image built and safe to depoly!"
 
 
