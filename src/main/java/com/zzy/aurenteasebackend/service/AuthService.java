@@ -1,14 +1,13 @@
 package com.zzy.aurenteasebackend.service;
 
 import com.zzy.aurenteasebackend.domain.User;
+import com.zzy.aurenteasebackend.repository.UserRepository;
 import com.zzy.aurenteasebackend.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.zzy.aurenteasebackend.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

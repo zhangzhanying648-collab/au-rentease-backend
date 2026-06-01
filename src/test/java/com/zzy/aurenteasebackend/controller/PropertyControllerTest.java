@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zzy.aurenteasebackend.domain.Property;
 import com.zzy.aurenteasebackend.dto.PropertySearchCriteria;
 import com.zzy.aurenteasebackend.service.PropertyService;
-import org.hibernate.validator.internal.constraintvalidators.hv.Mod11CheckValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebMvcTest(PropertyController.class)
+//@WebMvcTest(PropertyController.class)
+@WebMvcTest(controllers = PropertyController.class, excludeAutoConfiguration = {
+        org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+        org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration.class
+})
 class PropertyControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -29,8 +32,6 @@ class PropertyControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-
 
     @Test
     void search() throws Exception {
