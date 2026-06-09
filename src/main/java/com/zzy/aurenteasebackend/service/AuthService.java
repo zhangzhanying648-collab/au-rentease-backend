@@ -3,6 +3,7 @@ package com.zzy.aurenteasebackend.service;
 import com.zzy.aurenteasebackend.domain.User;
 import com.zzy.aurenteasebackend.repository.UserRepository;
 import com.zzy.aurenteasebackend.security.JwtService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,13 +55,27 @@ public class AuthService {
 
     //用户登录
     //正统的大厂全托管写法
-    public String login(String username, String password){
+    public LoginResult login(String username, String password){
 
         // 💡 让大经理去调 Provider，Provider 再去调 UserDetailsService 和 PasswordEncoder 进行肉搏比对
         // 如果密码错或者用户不存在，这一行会自动抛出 BadCredentialsException 异常
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password)
         );
-        return jwtService.generateToken(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found after auth"));
+
+        String token = jwtService.generateToken(username);
+        String role = user.getRole(); // 或者 user.getRole().name() 如果你的 role 是枚类型
+
+        // 返回包装对象
+        return new LoginResult(token, role);
+    }
+
+    // @Value 会自动生成只读的全参构造、getter 方法
+    @lombok.Value
+    public static class LoginResult {
+        String token;
+        String role;
     }
 }

@@ -11,5 +11,12 @@
 <!--    含义：路径寻址模式。当设为 false 时，意味着 file 属性里填写的路径不是相对于当前主文件的相对路径，
 而是相对于整个项目类路径（Classpath，即 src/main/resources/）的绝对根路径。-->
     <include file="db/changelog/changes/v1.1.0_create_users_table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changes/v1.1.2_add_description_to_properties.xml"/>
+    <include file="db/changelog/changes/v1.1.3_seed_properties_data.xml"/>
+    <include file="db/changelog/changes/v1.1.4_add_image_url_to_properties.xml"/>
+    <include file="db/changelog/changes/v1.1.5_create_bookings_table.xml" />
+    <include file="db/changelog/changes/v1.1.6_create_applications_table.xml" />
+
+
 
 </databaseChangeLog>

@@ -22,7 +22,7 @@
             <column name="bedrooms" type="INT">
                 <constraints nullable="false"/>
             </column>
-            <column name="bathrooms" type="INT">
+            <column name="bathrooms" type="NUMERIC(3,1)">
                 <constraints nullable="false"/>
             </column>
             <column name="car_spaces" type="INT">

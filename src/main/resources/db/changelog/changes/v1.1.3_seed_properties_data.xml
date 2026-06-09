@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="v1.1.3-seed-properties" author="alex">
+        <delete tableName="properties"/>
+
+        <insert tableName="properties">
+            <column name="title" value="Luxury Waterfront Apartment with Opera House Views"/>
+            <column name="property_type" value="APARTMENT"/>
+            <column name="price_per_week" value="1250.00"/>
+            <column name="bedrooms" value="2"/>
+            <column name="bathrooms" value="2"/>
+            <column name="car_spaces" value="1"/>
+            <column name="street_address" value="101/26 Circular Quay East"/>
+            <column name="suburb" value="Sydney"/>
+            <column name="state" value="NSW"/>
+            <column name="postcode" value="2000"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Experience the ultimate Sydney lifestyle in this stunning waterfront apartment. Features premium Miele appliances, ducted air conditioning, and an expansive balcony capturing uninterrupted views of the Harbour Bridge and Opera House."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Modern Studio in the Heart of Surry Hills"/>
+            <column name="property_type" value="STUDIO"/>
+            <column name="price_per_week" value="580.00"/>
+            <column name="bedrooms" value="1"/>
+            <column name="bathrooms" value="1"/>
+            <column name="car_spaces" value="0"/>
+            <column name="street_address" value="12/45 Crown Street"/>
+            <column name="suburb" value="Surry Hills"/>
+            <column name="state" value="NSW"/>
+            <column name="postcode" value="2010"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Charming and sun-drenched studio apartment located in a secure heritage building. Footsteps away from Sydney's finest cafes, award-winning restaurants, and Central Station. Perfect for young professionals."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Spacious Family House near Top Schools"/>
+            <column name="property_type" value="HOUSE"/>
+            <column name="price_per_week" value="950.00"/>
+            <column name="bedrooms" value="4"/>
+            <column name="bathrooms" value="2"/>
+            <column name="car_spaces" value="2"/>
+            <column name="street_address" value="88 Albert Drive"/>
+            <column name="suburb" value="Chatswood"/>
+            <column name="state" value="NSW"/>
+            <column name="postcode" value="2067"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Beautifully presented 4-bedroom family residence boasting a massive backyard, open-plan kitchen, and separate living areas. Located within the highly sought-after school catchment zones and minutes to Chatswood Chase."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Contemporary Townhouse close to University"/>
+            <column name="property_type" value="TOWNHOUSE"/>
+            <column name="price_per_week" value="780.00"/>
+            <column name="bedrooms" value="3"/>
+            <column name="bathrooms" value="2"/>
+            <column name="car_spaces" value="1"/>
+            <column name="street_address" value="3/14 Barker Street"/>
+            <column name="suburb" value="Kingsford"/>
+            <column name="state" value="NSW"/>
+            <column name="postcode" value="2032"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Modern 3-level townhouse featuring built-in wardrobes, a private courtyard, and a secure lock-up garage. Ideal for students or staff looking for premium accommodation walking distance to UNSW."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Chic Urban Apartment with Skyline Views"/>
+            <column name="property_type" value="APARTMENT"/>
+            <column name="price_per_week" value="690.00"/>
+            <column name="bedrooms" value="1"/>
+            <column name="bathrooms" value="1"/>
+            <column name="car_spaces" value="1"/>
+            <column name="street_address" value="1205/88 Regent Street"/>
+            <column name="suburb" value="Redfern"/>
+            <column name="state" value="NSW"/>
+            <column name="postcode" value="2016"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="High-rise apartment offering panoramic city views. Equipped with state-of-the-art facilities including a rooftop BBQ area, heated swimming pool, and 24/7 concierge. A vibrant urban sanctuary."/>
+        </insert>
+
+        <insert tableName="properties">
+            <column name="title" value="Stylish Industrial Loft in Trendy Suburb"/>
+            <column name="property_type" value="APARTMENT"/>
+            <column name="price_per_week" value="620.00"/>
+            <column name="bedrooms" value="1"/>
+            <column name="bathrooms" value="1"/>
+            <column name="car_spaces" value="1"/>
+            <column name="street_address" value="55/10 Brunswick Street"/>
+            <column name="suburb" value="Fitzroy"/>
+            <column name="state" value="VIC"/>
+            <column name="postcode" value="3065"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Classic warehouse conversion featuring exposed brick walls, soaring double-height ceilings, and polished concrete floors. Experience the bohemian charm of Fitzroy right outside your doorstep."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Premium Executive Penthouse in CBD"/>
+            <column name="property_type" value="APARTMENT"/>
+            <column name="price_per_week" value="1100.00"/>
+            <column name="bedrooms" value="3"/>
+            <column name="bathrooms" value="2"/>
+            <column name="car_spaces" value="2"/>
+            <column name="street_address" value="4501/250 Elizabeth Street"/>
+            <column name="suburb" value="Melbourne"/>
+            <column name="state" value="VIC"/>
+            <column name="postcode" value="3000"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Magnificent penthouse apartment with breathtaking vistas of the Yarra River and Port Phillip Bay. Enjoy world-class resident amenities including a private cinema, gym, and wine cellar."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Charming Victorian Terrace House"/>
+            <column name="property_type" value="HOUSE"/>
+            <column name="price_per_week" value="850.00"/>
+            <column name="bedrooms" value="3"/>
+            <column name="bathrooms" value="1.5"/>
+            <column name="car_spaces" value="1"/>
+            <column name="street_address" value="74 Rathdowne Street"/>
+            <column name="suburb" value="Carlton"/>
+            <column name="state" value="VIC"/>
+            <column name="postcode" value="3053"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Beautifully restored Victorian terrace displaying ornamental fireplaces, high ornate ceilings, and a sunlit rear courtyard. Located only meters from Lygon Street's famous dining precinct and Melbourne Uni."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Sunfilled Waterfront Apartment in Docklands"/>
+            <column name="property_type" value="APARTMENT"/>
+            <column name="price_per_week" value="720.00"/>
+            <column name="bedrooms" value="2"/>
+            <column name="bathrooms" value="2"/>
+            <column name="car_spaces" value="1"/>
+            <column name="street_address" value="803/15 Marble Terrace"/>
+            <column name="suburb" value="Docklands"/>
+            <column name="state" value="VIC"/>
+            <column name="postcode" value="3008"/>
+            <column name="status" value="RENTED"/>
+            <column name="description" value="Flawless waterfront living offering stunning marina views. Features a spacious open plan layout, gourmet kitchen with stone benchtops, and secure swipe access. Currently tenanted."/>
+        </insert>
+        <insert tableName="properties">
+            <column name="title" value="Cozy Suburban House with Beautiful Garden"/>
+            <column name="property_type" value="HOUSE"/>
+            <column name="price_per_week" value="550.00"/>
+            <column name="bedrooms" value="3"/>
+            <column name="bathrooms" value="1"/>
+            <column name="car_spaces" value="2"/>
+            <column name="street_address" value="14 Glenferrie Road"/>
+            <column name="suburb" value="Hawthorn"/>
+            <column name="state" value="VIC"/>
+            <column name="postcode" value="3122"/>
+            <column name="status" value="AVAILABLE"/>
+            <column name="description" value="Delightful family home nestled in a leafy street. Offers a generous floor plan, a massive wrap-around garden perfect for entertaining, and close proximity to premium private schools and public transport."/>
+        </insert>
+
+        <insert tableName="properties"><column name="title" value="Modern Riverside Apartment in West End"/><column name="property_type" value="APARTMENT"/><column name="price_per_week" value="680.00"/><column name="bedrooms" value="2"/><column name="bathrooms" value="2"/><column name="car_spaces" value="1"/><column name="street_address" value="42/10 Riverside Drive"/><column name="suburb" value="West End"/><column name="state" value="QLD"/><column name="postcode" value="4101"/><column name="status" value="AVAILABLE"/><column name="description" value="Stunning riverside lifestyle apartment. Features sleek European fittings, a huge entertainer's balcony, and access to a resort-style infinity pool overlooking the Brisbane River."/></insert>
+        <insert tableName="properties"><column name="title" value="Traditional Queenslander House with Deck"/><column name="property_type" value="HOUSE"/><column name="price_per_week" value="750.00"/><column name="bedrooms" value="4"/><column name="bathrooms" value="2"/><column name="car_spaces" value="2"/><column name="street_address" value="59 Given Terrace"/><column name="suburb" value="Paddington"/><column name="state" value="QLD"/><column name="postcode" value="4064"/><column name="status" value="AVAILABLE"/><column name="description" value="Classic Queenslander full of character with high ceilings, VJ walls, and polished timber floors. Features an incredible rear deck capturing beautiful local valley breezes."/></insert>
+        <insert tableName="properties"><column name="title" value="Sleek High-Rise Studio Apartment"/><column name="property_type" value="STUDIO"/><column name="price_per_week" value="460.00"/><column name="bedrooms" value="1"/><column name="bathrooms" value="1"/><column name="car_spaces" value="0"/><column name="street_address" value="1804/45 Albert Street"/><column name="suburb" value="Brisbane"/><column name="state" value="QLD"/><column name="postcode" value="4000"/><column name="status" value="AVAILABLE"/><column name="description" value="Compact yet hyper-functional city studio. Offers fully furnished interiors, integrated storage solutions, and breathtaking skyline views. Ideal for students or city workers."/></insert>
+        <insert tableName="properties"><column name="title" value="Spacious Townhouse Near Shopping Hub"/><column name="property_type" value="TOWNHOUSE"/><column name="price_per_week" value="590.00"/><column name="bedrooms" value="3"/><column name="bathrooms" value="2.5"/><column name="car_spaces" value="2"/><column name="street_address" value="5/12 Gympie Road"/><column name="suburb" value="Chermside"/><column name="state" value="QLD"/><column name="postcode" value="4032"/><column name="status" value="AVAILABLE"/><column name="description" value="Trilevel townhouse offering superior family convenience. Boasts ducted aircon throughout, a private pet-friendly courtyard, and walking distance to Westfield Chermside."/></insert>
+        <insert tableName="properties"><column name="title" value="Boutique Living in Vibrant Fortitude Valley"/><column name="property_type" value="APARTMENT"/><column name="price_per_week" value="520.00"/><column name="bedrooms" value="1"/><column name="bathrooms" value="1"/><column name="car_spaces" value="1"/><column name="street_address" value="702/11 Wickham Street"/><column name="suburb" value="Fortitude Valley"/><column name="state" value="QLD"/><column name="postcode" value="4006"/><column name="status" value="AVAILABLE"/><column name="description" value="Immaculate boutique apartment positioned in the epicenter of nightlife and dining. Features double glazed acoustic windows, stone island benchtops, and low body corporate."/></insert>
+        <insert tableName="properties"><column name="title" value="Acreage Family Oasis with Pool"/><column name="property_type" value="HOUSE"/><column name="price_per_week" value="1200.00"/><column name="bedrooms" value="5"/><column name="bathrooms" value="3"/><column name="car_spaces" value="4"/><column name="street_address" value="77 Sugarwood Drive"/><column name="suburb" value="Brookfield"/><column name="state" value="QLD"/><column name="postcode" value="4069"/><column name="status" value="AVAILABLE"/><column name="description" value="Sprawling acreage masterpiece designed for elite family entertainment. Features an in-ground swimming pool, championship tennis court, and state-of-the-art security alarm systems."/></insert>
+        <insert tableName="properties"><column name="title" value="Waterfront Luxury on the Gold Coast"/><column name="property_type" value="HOUSE"/><column name="price_per_week" value="1450.00"/><column name="bedrooms" value="4"/><column name="bathrooms" value="3"/><column name="car_spaces" value="2"/><column name="street_address" value="18 Monaco Street"/><column name="suburb" value="Surfers Paradise"/><column name="state" value="QLD"/><column name="postcode" value="4217"/><column name="status" value="AVAILABLE"/><column name="description" value="Prestigious absolute waterfront estate with private boat pontoon. Features floor-to-ceiling glass doors, a commercial-grade kitchen, and an indoor spa lounge room."/></insert>
+        <insert tableName="properties"><column name="title" value="Suburban Brick Home Near Train Station"/><column name="property_type" value="HOUSE"/><column name="price_per_week" value="510.00"/><column name="bedrooms" value="3"/><column name="bathrooms" value="1"/><column name="car_spaces" value="1"/><column name="street_address" value="84 Station Road"/><column name="suburb" value="Indooroopilly"/><column name="state" value="QLD"/><column name="postcode" value="4068"/><column name="status" value="MAINTENANCE"/><column name="description" value="Solid brick and tile lowset home. Undergoing light cosmetic renovations including brand new carpets and fresh neutral paint throughout. Available soon."/></insert>
+        <insert tableName="properties"><column name="title" value="Trendy Apartment with Huge Courtyard"/><column name="property_type" value="APARTMENT"/><column name="price_per_week" value="630.00"/><column name="bedrooms" value="2"/><column name="bathrooms" value="1"/><column name="car_spaces" value="1"/><column name="street_address" value="2/14 Lamington Street"/><column name="suburb" value="New Farm"/><column name="state" value="QLD"/><column name="postcode" value="4005"/><column name="status" value="AVAILABLE"/><column name="description" value="Ground floor gem located in New Farm's premiere street. Features a massive 60sqm private wrap-around paved courtyard perfect for weekend barbecues and pets."/></insert>
+        <insert tableName="properties"><column name="title" value="Modern Low Maintenance Unit"/><column name="property_type" value="APARTMENT"/><column name="price_per_week" value="440.00"/><column name="bedrooms" value="1"/><column name="bathrooms" value="1"/><column name="car_spaces" value="1"/><column name="street_address" value="15/33 Annerley Road"/><column name="suburb" value="Annerley"/><column name="state" value="QLD"/><column name="postcode" value="4103"/><column name="status" value="AVAILABLE"/><column name="description" value="Neat and tidy inner-city unit with air conditioning, gas cooking, and security screens. Excellent access to public transport and Princess Alexandra Hospital."/></insert>
+
+        <insert tableName="properties"><column name="title" value="Premium Coastal Penthouse"/><column name="property_type" value="APARTMENT"/><column name="price_per_week" value="1800.00"/><column name="bedrooms" value="3"/><column name="bathrooms" value="3"/><column name="car_spaces" value="2"/><column name="street_address" value="901/2 The Esplanade"/><column name="suburb" value="Manly"/><column name="state" value="NSW"/><column name="postcode" value="2095"/><column name="status" value="AVAILABLE"/><column name="description" value="Breathtaking ocean-view penthouse with world-class design."/></insert>
+        <insert tableName="properties"><column name="title" value="Affordable Student Studio near Uni"/><column name="property_type" value="STUDIO"/><column name="price_per_week" value="390.00"/><column name="bedrooms" value="1"/><column name="bathrooms" value="1"/><column name="car_spaces" value="0"/><column name="street_address" value="402/11 Abercrombie Street"/><column name="suburb" value="Chippendale"/><column name="state" value="NSW"/><column name="postcode" value="2008"/><column name="status" value="AVAILABLE"/><column name="description" value="Perfect low-cost option for students studying at USYD or UTS."/></insert>
+        <insert tableName="properties"><column name="title" value="Stately Federation House"/><column name="property_type" value="HOUSE"/><column name="price_per_week" value="1350.00"/><column name="bedrooms" value="5"/><column name="bathrooms" value="3"/><column name="car_spaces" value="2"/><column name="street_address" value="45 Coogee Bay Road"/><column name="suburb" value="Coogee"/><column name="state" value="NSW"/><column name="postcode" value="2034"/><column name="status" value="AVAILABLE"/><column name="description" value="Grand historical residence moments from the sands of Coogee Beach."/></insert>
+        <insert tableName="properties"><column name="title" value="Inner-West Creative Space Apartment"/><column name="property_type" value="APARTMENT"/><column name="price_per_week" value="610.00"/><column name="bedrooms" value="2"/><column name="bathrooms" value="1"/><column name="car_spaces" value="1"/><column name="street_address" value="8/10 King Street"/><column name="suburb" value="Newtown"/><column name="state" value="NSW"/><column name="postcode" value="2042"/><column name="status" value="AVAILABLE"/><column name="description" value="Vibrant apartment showcasing artistic finishes and city fringe proximity."/></insert>
+        <insert tableName="properties"><column name="title" value="Quiet Bushland Retreat Townhouse"/><column name="property_type" value="TOWNHOUSE"/><column name="price_per_week" value="700.00"/><column name="bedrooms" value="3"/><column name="bathrooms" value="2"/><column name="car_spaces" value="2"/><column name="street_address" value="4/19 Pembroke Road"/><column name="suburb" value="Marsfield"/><column name="state" value="NSW"/><column name="postcode" value="2122"/><column name="status" value="AVAILABLE"/><column name="description" value="Peaceful townhouse backing onto scenic nature reserves near Macquarie."/></insert>
+        <insert tableName="properties"><column name="title" value="Adelaide Executive Townhouse"/><column name="property_type" value="TOWNHOUSE"/><column name="price_per_week" value="550.00"/><column name="bedrooms" value="3"/><column name="bathrooms" value="2"/><column name="car_spaces" value="1"/><column name="street_address" value="12 King William Street"/><column name="suburb" value="Adelaide"/><column name="state" value="SA"/><column name="postcode" value="5000"/><column name="status" value="AVAILABLE"/><column name="description" value="Elite inner-city living in South Australia."/></insert>
+        <insert tableName="properties"><column name="title" value="Perth Riverside Villa with Views"/><column name="property_type" value="HOUSE"/><column name="price_per_week" value="890.00"/><column name="bedrooms" value="4"/><column name="bathrooms" value="2"/><column name="car_spaces" value="3"/><column name="street_address" value="88 Swan River Drive"/><column name="suburb" value="South Perth"/><column name="state" value="WA"/><column name="postcode" value="6151"/><column name="status" value="AVAILABLE"/><column name="description" value="Stunning Western Australia scenic luxury residence."/></insert>
+    </changeSet>
+</databaseChangeLog>

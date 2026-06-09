@@ -52,8 +52,34 @@ services:
     volumes:
       - localstack:/var/lib/localstack
 
+  # 🚀 大厂完美平替：Docker 官方标准私有镜像仓库 (免费、开源、无限制)
+  local-registry:
+    image: registry:2
+    container_name: rentease-registry
+    ports:
+      - "5001:5000"            # 💡 将容器内的 5000 端口映射到本地的 5001 端口
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: "true" # 允许删除镜像
+    volumes:
+      - registry_data:/var/lib/registry
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: au-rentease-rabbitmq
+    ports:
+      - "5672:5672"   # 🚀 MQ 核心通信端口（Spring Boot 连接这个端口）
+      - "15672:15672" # 📊 Web 管理后台可视化控制台端口
+    environment:
+      RABBITMQ_DEFAULT_USER: guest     # 初始管理员账号
+      RABBITMQ_DEFAULT_PASS: guest     # 初始管理员密码
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # 持久化队列和消息数据，防止容器重启后数据丢失
+
+
 volumes:
   pgdata:
   localstack:
+  registry_data:
+  rabbitmq_data: # 声明数据卷
 
 

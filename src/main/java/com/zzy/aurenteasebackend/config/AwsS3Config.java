@@ -1,16 +1,23 @@
 package com.zzy.aurenteasebackend.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.CORSConfiguration;
+import software.amazon.awssdk.services.s3.model.CORSRule;
+import software.amazon.awssdk.services.s3.model.PutBucketCorsRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
+import java.util.Collections;
 
 @Configuration
 public class AwsS3Config {
@@ -22,6 +29,11 @@ public class AwsS3Config {
     //指定 AWS 的服务机房区域。冒号后面的 ap-southeast-2 是悉尼机房（Sydney）的官方代号
     @Value("${aws.region:ap-southeast-2}")
     private String region;
+
+//    @Value("${aws.s3.bucket-name}")
+//    private String BUCKET_NAME;
+    private static final String BUCKET_NAME = "rentease-property-photos";
+
 
     //澳洲大厂生产规范：AWS客户端必须交由Spring容器统一作为单例Bean管理
     @Bean
@@ -53,6 +65,39 @@ public class AwsS3Config {
             builder.endpointOverride(URI.create(endpoint));
         }
         return builder.build();
+    }
+
+    // 意思是：等整个 Spring Boot 完全启动成功、所有 Bean 都生出来了之后，再踏踏实实地执行这段跨域注入代码。
+    // 同时通过参数直接把生成的 s3Client 传进来，完美避开循环依赖。
+    @EventListener(ApplicationReadyEvent.class)
+    public void initBucketCors(ApplicationReadyEvent event) {
+        // 如果是线上真实 S3 环境或者桶还没被创建，可以加上 try-catch 防止启动崩溃
+        try {
+            S3Client client = event.getApplicationContext().getBean(S3Client.class);
+            // 1. 配置跨域规则（CORS Rule）
+            CORSRule corsRule = CORSRule.builder()
+                    .allowedOrigins("http://localhost:3000") // 允许你的前端地址跨域访问
+                    .allowedMethods("PUT", "POST", "GET", "HEAD") // 允许前端直接用 PUT 上传
+                    .allowedHeaders("*") // 允许任何 Header 头（包含 Content-Type 等）
+                    .maxAgeSeconds(3000)
+                    .build();
+
+            CORSConfiguration corsConfiguration = CORSConfiguration.builder()
+                    .corsRules(Collections.singletonList(corsRule))
+                    .build();
+
+            PutBucketCorsRequest corsRequest = PutBucketCorsRequest.builder()
+                    .bucket(BUCKET_NAME)
+                    .corsConfiguration(corsConfiguration)
+                    .build();
+
+            // 2. 将跨域规则刷入 LocalStack / AWS
+            client.putBucketCors(corsRequest);
+            System.out.println("====== 🎉 LocalStack S3 桶 [" + BUCKET_NAME + "] CORS 跨域规则注入成功！ ======");
+
+        } catch (Exception e) {
+            System.err.println("====== ⚠️ 注入 S3 CORS 失败（请检查本地 LocalStack 是否启动或桶是否存在）：" + e.getMessage() + " ======");
+        }
     }
 
     //注入专门用来计算预签名URL的超级签名官

@@ -1,0 +1,75 @@
+#version: '3.8'
+
+services:
+  # 1. 生产级数据库基石
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: rentease-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: rentease_db
+      POSTGRES_USER: rentease_admin
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rentease-network
+
+  # 2. 生产级 AWS S3 虚拟云
+  localstack:
+    image: localstack/localstack:3.0
+    container_name: rentease-aws-sandbox
+    platform: linux/amd64
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: ap-southeast-2
+    volumes:
+      - localstack:/var/lib/localstack
+    networks:
+      - rentease-network
+
+  # 🚀 3. 我们的 AU-RentEase 后端核心生产集装箱！
+  # 💡 模拟大厂从私有仓库（5001端口）直接拉取镜像部署
+  rentease-backend:
+    image: localhost:5001/au-rentease-backend:v1.0.0
+    container_name: prod-rentease-backend-app
+    ports:
+      - "8080:8080" # 将内部生产端口暴露给你的笔记本电脑
+    restart: always # 💡 避坑：如果数据库没初始化好导致闪退，容器会自动重启直到连上为止
+    depends_on:
+      - postgres-db
+      - localstack
+    networks:
+      - rentease-network
+    # 💡 大厂核心避坑点：通过环境变量（Environment Variables）强行覆盖代码里的配置，完成零重构跨环境部署
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/rentease_db
+      - SPRING_DATASOURCE_USERNAME=rentease_admin
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - AWS_S3_ENDPOINT=http://localstack:4566 # 💡 强行指向容器网络内部的 localstack 服务
+      - AWS_S3_BUCKET_NAME=rentease-property-photos
+      - AWS_REGION=ap-southeast-2
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: au-rentease-rabbitmq
+    ports:
+      - "5672:5672"   # 🚀 MQ 核心通信端口（Spring Boot 连接这个端口）
+      - "15672:15672" # 📊 Web 管理后台可视化控制台端口
+    environment:
+      RABBITMQ_DEFAULT_USER: guest     # 初始管理员账号
+      RABBITMQ_DEFAULT_PASS: guest     # 初始管理员密码
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # 持久化队列和消息数据，防止容器重启后数据丢失
+    networks:
+      - rentease-network               # 确保与你的后端 Spring Boot 服务在同一个 Docker 网络下
+networks:
+  rentease-network: # 💡 建立专属隔离的生产网络，模拟公有云 VPC
+    driver: bridge
+
+volumes:
+  pgdata:
+  localstack:
+  rabbitmq_data: # 声明数据卷

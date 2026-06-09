@@ -2,6 +2,12 @@ spring:
   application:
     name: au-rentease-backend
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   datasource:
     url: jdbc:postgresql://localhost:5432/rentease_db
     username: rentease_admin
@@ -19,7 +25,23 @@ spring:
     enabled: true
     # 💡 声明主版本控制文件的路径
     change-log: classpath:db/changelog/db.changelog-master.xml
+# ==========================================
+# 📧 Gmail 核心配置
+# ==========================================
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: zhangzhanying648@gmail.com
+    # ⚠️ 注意：这里填写的是你在谷歌账户中生成的 16 位「应用专用密码」
+    password: gtbs djez dlqw gshh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 app:
   jwt:
     # 🌟 意思是：优先读取名为 JWT_SECRET 的环境变量，如果系统里没有这个环境变量，就用冒号后面的长字符串

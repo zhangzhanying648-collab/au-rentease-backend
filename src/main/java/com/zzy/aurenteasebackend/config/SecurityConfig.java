@@ -3,12 +3,16 @@ package com.zzy.aurenteasebackend.config;
 import com.zzy.aurenteasebackend.repository.UserRepository;
 import com.zzy.aurenteasebackend.security.JwtAuthenticationFilter;
 import com.zzy.aurenteasebackend.security.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,9 +23,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import static org.springframework.security.config.Customizer.withDefaults; // 🌟 必须有这个静态导入
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // 极其重要：激活这个注解，@PreAuthorize 权限哨兵才会全面上岗执勤！
 public class SecurityConfig {
     private final JwtService jwtService;
     private final UserRepository userRepository; // 💡 注入我们的用户数据库操作层
@@ -74,20 +80,59 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http
+//                .csrf(AbstractHttpConfigurer::disable)
+
+                // 1. 彻底禁用 CSRF（前后端分离项目的标准做法）
+                .csrf(csrf -> csrf.disable())
+
+                // 2. 启用跨域资源共享（CORS），配合你的 CorsConfigurationSource 豆子生效
+//                .cors(cors -> cors.withDefaults())
+                .cors(withDefaults())
+                .exceptionHandling(exception -> exception
+                        // 🚀 动态认证入口：根据具体的 authException 吐回真实的错误提示
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // 1. 锁死状态码 401
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+
+                            // 2. 🌟 智能判定：根据异常类型动态组织语言
+                            String errorMessage = "Full authentication is required to access this resource.";
+
+                            if (authException != null) {
+                                // 如果是账户被锁、凭证错误等导致的（比如登录接口真的输错账密）
+                                errorMessage = authException.getMessage();
+                            }
+
+                            // 如果你在 JwtAuthenticationFilter 里把错误存到了 request 域中，这里也能拿到：
+                            if (request.getAttribute("jwt_error") != null) {
+                                errorMessage = request.getAttribute("jwt_error").toString();
+                            }
+
+                            // 3. 严格对齐前端要求的 JSON 结构
+                            String jsonPayload = String.format("{\"message\": \"%s\"}", errorMessage);
+
+                            response.getWriter().write(jsonPayload);
+                            response.getWriter().flush();
+                        })
+                )
 
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers("/api/properties/search").permitAll()
                         .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
                 .sessionManagement(session->{
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository),
+                        UsernamePasswordAuthenticationFilter.class)
 
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+
+;
         return http.build();
     }
 

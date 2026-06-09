@@ -26,9 +26,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request)
     {
-        String token=authService.login(request.getUsername(),request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(token));
-
+        AuthService.LoginResult result =authService.login(request.getUsername(),request.getPassword());
+        return ResponseEntity.ok(new AuthResponse(result.getToken(), result.getRole()));
     }
 
     //在 Controller 内部定义static class（静态内部类）
@@ -43,6 +42,7 @@ public class AuthController {
     static class AuthResponse{
         private final String token;
         private final String tokenType="Bearer";// 💡 澳洲团队非常喜欢显式指定 Token 类型
+        private final String role;
     }
 
     @Data
