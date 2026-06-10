@@ -112,4 +112,54 @@ public class PropertyController {
 
         return ResponseEntity.ok(updated);
     }
+
+    @PostMapping("/test-mq-flood")
+    public ResponseEntity<String> testMqFloodBackpressure() {
+        log.info("\n=== 🚨 [💥 MQ 洪峰压测启动] 模拟房东批量导入修改，瞬间倾倒 20 条高负载降价消息 ===");
+
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 1; i <= 20; i++) {
+            String mockPayload = String.format(
+                    "{\"propertyId\":%d, \"title\":\"[Flood Test] Brisbane CBD Luxury Living #%d\", \"oldPrice\":850.00, \"newPrice\":500.00, \"suburb\":\"Brisbane\"}",
+                    1000L + i, i
+            );
+
+            // 生产者（Controller）全速、毫无间隔地向 RabbitMQ 写入消息
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.PROPERTY_EXCHANGE,
+                    RabbitMQConfig.PROPERTY_ROUTING_KEY,
+                    mockPayload
+            );
+            log.info("📥 [Controller 生产者] 已成功将消息 #{} 灌入 RabbitMQ 物理队列中", i);
+        }
+
+        long endTime = System.currentTimeMillis();
+        return ResponseEntity.ok("20条重磅降价消息已成功泄洪至 RabbitMQ！Controller发送耗时：" + (endTime - startTime) + "ms");
+    }
+
+    @PostMapping("/test-dlq-trigger")
+    public ResponseEntity<String> testDlqTrigger() {
+        log.info("\n=== 🧪 [DLQ 死信机制单体测试启动] ===");
+
+        // 构造一条故意带有 "BUG" 的非正常改价消息，诱发消费者拒绝
+        String poisonMessage = "{" +
+                "\"propertyId\": 999, " +
+                "\"title\": \"🚨 [BUG TEST] Brisbane Flawed Apartment 🚨\", " +
+                "\"oldPrice\": 900.00, " +
+                "\"newPrice\": 400.00, " +
+                "\"suburb\": \"Brisbane City\"" +
+                "}";
+
+        // 生产者全速投递到原有的正常交换机中
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.PROPERTY_EXCHANGE,
+                RabbitMQConfig.PROPERTY_ROUTING_KEY,
+                poisonMessage
+        );
+
+        log.info("📥 [Controller 生产者] 故意构造的毒丸消息已成功注入主队列中。");
+        return ResponseEntity.ok("死信测试指令已发出，请观察控制台及 RabbitMQ Management 控制台！");
+    }
+
 }

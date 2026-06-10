@@ -54,3 +54,8 @@ aws:
     endpoint: http://localhost:4566  #指向本地的Docker沙盒
     bucket-name: rentease-property-photos #我们的专属“桶”名称
 
+
+
+logging:
+  charset:
+    console: UTF-8
