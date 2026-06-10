@@ -118,6 +118,8 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth->auth
+                        //精准放行 /ws/notifications 及其所有子路由，严防 Security 误伤
+                        .requestMatchers("/ws/notifications", "/ws/notifications/**").permitAll()
                         .requestMatchers("/api/properties/search").permitAll()
                         .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()

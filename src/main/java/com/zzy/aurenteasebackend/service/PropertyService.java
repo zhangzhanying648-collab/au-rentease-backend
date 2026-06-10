@@ -6,14 +6,15 @@ import com.zzy.aurenteasebackend.repository.PropertyRepository;
 import jakarta.persistence.Column;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -99,20 +100,12 @@ public class PropertyService {
                     .orElseThrow(() -> new RuntimeException("未找到对应的房源资产，无法执行更新，ID: " + id));
         }
 
-        // 2. 依次同步表单信息（无论是新实体还是旧实体，都需要被表单最新快照覆盖）
-        property.setTitle(dto.getTitle());
-        property.setPricePerWeek(dto.getPricePerWeek());
-        property.setStreetAddress(dto.getStreetAddress());
-        property.setSuburb(dto.getSuburb());
-        property.setPostcode(dto.getPostcode());
-        property.setState(dto.getState());
-        property.setDescription(dto.getDescription());
-
-        // 💡 补充绑定你前端表单里缺少的这几个关键澳洲房产字段
-        property.setBedrooms(dto.getBedrooms());
-        property.setBathrooms(dto.getBathrooms());
-        property.setCarSpaces(dto.getCarSpaces());
-        property.setPropertyType(dto.getPropertyType());
+        if (id == null) {
+            BeanUtils.copyProperties(dto, property, "id");
+        } else {
+            // 🚀 更新操作：只拷贝不为空（且非空字符串）的字段！一行代码解决战斗
+            BeanUtils.copyProperties(dto, property, getNullOrEmptyPropertyNames(dto));
+        }
 
 
         // 🌟 核心落库点：更新或写入 S3 的唯一 ObjectKey 钥匙
@@ -124,6 +117,29 @@ public class PropertyService {
         // 如果是全新 new 出来的，这里会发出 INSERT 语句
         // 如果是从 findById 捞出来的，这里会发出 UPDATE 语句
         return propertyRepository.save(property);
+    }
+
+    /**
+     * 💡 大厂标配反射工具：提取对象中所有 null 以及空字符串的属性名称
+     */
+    private String[] getNullOrEmptyPropertyNames(Object source) {
+        final BeanWrapper src = new BeanWrapperImpl(source);
+        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+        Set<String> emptyNames = new HashSet<>();
+        // 把 id 排除在拷贝范围外，防止前端传入错误的 id 或没有传 id 导致解包错误
+        emptyNames.add("id");
+
+        for (java.beans.PropertyDescriptor pd : pds) {
+            Object srcValue = src.getPropertyValue(pd.getName());
+            // 核心防御：如果字段是 null，或者字段是字符串且剔除空格后为空，就加入“忽略拷贝大礼包”
+            if (srcValue == null) {
+                emptyNames.add(pd.getName());
+            } else if (srcValue instanceof String && ((String) srcValue).trim().isEmpty()) {
+                emptyNames.add(pd.getName());
+            }
+        }
+        return emptyNames.toArray(new String[0]);
     }
 }
 
