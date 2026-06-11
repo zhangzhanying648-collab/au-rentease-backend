@@ -20,6 +20,13 @@ public class RabbitMQConfig {
     public static final String PROPERTY_DLQ_QUEUE = "property.dlq.queue";
     public static final String PROPERTY_DLQ_ROUTING_KEY = "property.dlq.dead";
 
+
+    // 报警专用的队列与路由键定义
+    public static final String ALARM_QUEUE = "property.alarm.queue";
+    public static final String ALARM_ROUTING_KEY = "property.alarm.triggered";
+
+
+
     /**
      * @Bean：告诉 Spring：“请执行这个方法，并把返回的 TopicExchange
      * 对象注册到 Spring 容器中管理”。Spring AMQP 探测到这个 Bean 后，会自动去 RabbitMQ 真正创建一个交换机。
@@ -116,5 +123,16 @@ public class RabbitMQConfig {
         factory.setMaxConcurrentConsumers(4);
 
         return factory;
+    }
+
+    @Bean
+    public Queue alarmQueue() {
+        return new Queue(ALARM_QUEUE, true); // 独立的报警队列
+    }
+
+    @Bean
+    public Binding bindingAlarmQueue(Queue alarmQueue, TopicExchange propertyExchange) {
+        // 同样绑定到主交换机，但使用不同的路由键
+        return BindingBuilder.bind(alarmQueue).to(propertyExchange).with(ALARM_ROUTING_KEY);
     }
 }

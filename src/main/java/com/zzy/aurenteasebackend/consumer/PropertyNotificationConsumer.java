@@ -32,8 +32,6 @@ public class PropertyNotificationConsumer {
     ) throws IOException {
         log.info("[MQ Consumer {}] ⚡ 捕获到降价事件，准备推送前端: {}" ,Thread.currentThread().getName(), messageJson);
 
-
-
         //群发邮件
         try {
             // 🌟 核心测试埋点：如果消息体里包含 "BUG" 字样，立刻人为制造异常！
@@ -69,6 +67,20 @@ public class PropertyNotificationConsumer {
             //此时，因为我们在 Config 里为主队列配了死信指向，RabbitMQ 会把这条消息【自动弹射】到死信队列中。
             channel.basicNack(deliveryTag, false, false);
             log.warn("⚠️ 毒丸消息已成功隔离，自动移送至死信队列（DLQ）。主干道恢复畅通！");
+        }
+    }
+
+    // 🌟 2. 【新增】专门消费紧急报警的方法
+    // 独立通道，即便上面的普通通知积压了10万条，这里的报警消息到达后也会立刻被专门的线程秒级处理！
+    // 维持默认配置（AUTO 模式）
+    @RabbitListener(queues = RabbitMQConfig.ALARM_QUEUE)
+    public void handleEmergencyAlarm(String alarmJson, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) throws IOException {
+        log.info("🚨 [🚨 紧急报警消费者] 捕获到实时报警通知: {}", alarmJson);
+        try {
+            // 报警逻辑务必追求快：比如只推送实时 WebSocket，不在这里做耗时的批量发邮件发短信操作
+            webSocketHandler.broadcastNotification(alarmJson);
+        } catch (Exception e) {
+            log.error("❌ 报警处理失败");
         }
     }
 

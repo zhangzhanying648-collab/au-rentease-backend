@@ -162,4 +162,31 @@ public class PropertyController {
         return ResponseEntity.ok("死信测试指令已发出，请观察控制台及 RabbitMQ Management 控制台！");
     }
 
+    @PostMapping("/test-alarm-trigger")
+    public ResponseEntity<String> testAlarmTrigger() {
+        //发20条普通消息
+//        testMqFloodBackpressure();
+
+        log.info("\n=== 🧪 [报警消息单体测试启动] ===");
+
+        // 构造一条报警消息
+        String alarmPayload = "{" +
+                "\"propertyId\": 999, " +
+                "\"title\": \"🚨 🚨🚨Alarm message🚨🚨🚨🚨\", " +
+                "\"oldPrice\": 900.00, " +
+                "\"newPrice\": 400.00, " +
+                "\"suburb\": \"Brisbane City\"" +
+                "}";
+
+        // 生产者全速投递到原有的正常交换机中
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.PROPERTY_EXCHANGE,
+                RabbitMQConfig.ALARM_ROUTING_KEY,
+                alarmPayload
+        );
+
+        log.info("📥 [Controller 生产者] 故意构造的报警消息已成功注入主队列中。");
+        return ResponseEntity.ok("报警消息已发出，请观察控制台及 RabbitMQ Management 控制台！");
+    }
+
 }
