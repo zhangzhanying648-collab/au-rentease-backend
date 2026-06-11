@@ -2,12 +2,15 @@ package com.zzy.aurenteasebackend.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.zzy.aurenteasebackend.config.RabbitMQConfig;
+import com.zzy.aurenteasebackend.document.PropertyExtendDoc;
 import com.zzy.aurenteasebackend.domain.Property;
+import com.zzy.aurenteasebackend.dto.PropertyCompositePayload;
 import com.zzy.aurenteasebackend.dto.PropertySearchCriteria;
 import com.zzy.aurenteasebackend.repository.PropertyRepository;
 import com.zzy.aurenteasebackend.service.ApplicationService;
 import com.zzy.aurenteasebackend.service.FileStorageService;
 import com.zzy.aurenteasebackend.service.PropertyService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/properties")
@@ -195,4 +199,17 @@ public class PropertyController {
         return ResponseEntity.ok("报警消息已发出，请观察控制台及 RabbitMQ Management 控制台！");
     }
 
+
+    @PostMapping("/composite-saving")
+    @PreAuthorize("hasRole('LANDLORD') or hasRole('ADMIN')")
+    public ResponseEntity<Property> saveCompositeProperty(@RequestBody PropertyCompositePayload payload){
+        Property saved = propertyService.savePropertyWithMongoExtend(payload.getBasic(), payload.getExtend());
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping("/{id}/full")
+    public ResponseEntity<Map<String, Object>> getFullPropertyDetails(@PathVariable Long id){
+        Map<String, Object> fullDetails = propertyService.getFullPropertyDetails(id);
+        return  fullDetails!=null?ResponseEntity.ok(fullDetails):ResponseEntity.notFound().build();
+    }
 }

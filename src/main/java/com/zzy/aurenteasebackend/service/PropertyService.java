@@ -1,7 +1,9 @@
 package com.zzy.aurenteasebackend.service;
 
+import com.zzy.aurenteasebackend.document.PropertyExtendDoc;
 import com.zzy.aurenteasebackend.domain.Property;
 import com.zzy.aurenteasebackend.dto.PropertySearchCriteria;
+import com.zzy.aurenteasebackend.repository.PropertyExtendRepository;
 import com.zzy.aurenteasebackend.repository.PropertyRepository;
 import com.zzy.aurenteasebackend.websocket.NotificationWebSocketHandler;
 import jakarta.persistence.Column;
@@ -29,6 +31,8 @@ public class PropertyService {
     private static final Logger log = LoggerFactory.getLogger(PropertyService.class);
 
     private final PropertyRepository propertyRepository;
+
+    private final PropertyExtendRepository propertyExtendRepository;
 
     private final RedisTemplate<String, Object> redisTemplate; // 🌟 注入我们的 JSON Redis 模板
 
@@ -189,6 +193,50 @@ public class PropertyService {
             }
         }
         return emptyNames.toArray(new String[0]);
+    }
+
+    /**
+     * 🌟 1. 写请求：大厂多源异构数据库双写实践
+     */
+    @Transactional
+    public Property savePropertyWithMongoExtend(Property basicDto, PropertyExtendDoc extendDto){
+        log.info("💾 [跨库写入] 1. 优先开始持久化房源基础结构至 MySQL...");
+        Property savedProperty = propertyRepository.save(basicDto);
+        Long propertyId = savedProperty.getId();
+
+        log.info("🍃 [跨库写入] 2. MySQL 主键已生成（#{}），开始组装动态扩展字段投递至 MongoDB...", propertyId);
+        PropertyExtendDoc mongoDoc=propertyExtendRepository.findByPropertyId(propertyId)
+                .orElse(new PropertyExtendDoc());
+        mongoDoc.setPropertyId(propertyId);
+        mongoDoc.setHighlights(extendDto.getHighlights());
+        mongoDoc.setAmenities(extendDto.getAmenities());
+        mongoDoc.setPreference(extendDto.getPreference());
+
+        propertyExtendRepository.save(mongoDoc);
+        log.info("✅ [跨库写入] 3. 房源 #{} 的多源异构存储（MySQL 核心表 + MongoDB 动态文档）全部闭环成功！", propertyId);
+        return savedProperty;
+    }
+
+    /**
+     * 🌟 2. 读请求：混合打包聚合输出
+     */
+    public Map<String, Object> getFullPropertyDetails(Long id) {
+        Property basic=propertyRepository.findById(id).orElse(null);
+        if(basic==null){
+            return null;
+        }
+
+        PropertyExtendDoc extend = propertyExtendRepository.findByPropertyId(id).orElse(null);
+
+        return Map.of(
+                "id", basic.getId(),
+                "title",basic.getTitle(),
+                "pricePerWeek", basic.getPricePerWeek(),
+                "suburb",basic.getSuburb(),
+                "highlights",(extend!=null)?extend.getHighlights():List.of(),
+                "amentities",(extend!=null)?extend.getAmenities():Map.of(),
+                "preference",(extend!=null)?extend.getPreference():Map.of()
+        );
     }
 }
 

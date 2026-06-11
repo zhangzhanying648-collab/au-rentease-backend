@@ -49,6 +49,10 @@ spring:
       port: 6379
       password: 666666
       connect-timeout: 5000ms
+
+    mongodb:
+      uri: mongodb://localhost:27017/aurentease
+
 app:
   jwt:
     # 🌟 意思是：优先读取名为 JWT_SECRET 的环境变量，如果系统里没有这个环境变量，就用冒号后面的长字符串

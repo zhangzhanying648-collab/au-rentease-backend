@@ -77,6 +77,34 @@ services:
     # 🌟 核心解释：
     # --requirepass 后面跟你的 Redis 密码（建议改掉 YourSecurePassword123）
     # --appendonly yes 开启 AOF 持久化，数据更安全
+  # 🍃 MongoDB 容器服务
+  mongodb:
+    image: mongo:6.0
+    container_name: rentease-mongodb
+    restart: always
+    ports:
+      - "27017:27017" # 映射到你电脑本地的 27017 端口
+    environment:
+      MONGO_INITDB_DATABASE: aurentease # 初始化的数据库名字
+      # 💡 提示：为了本地开发实践方便，这里先不配账号密码（免密登录）。
+      # 如果想配密码，可以解开下面两行：
+      # MONGO_INITDB_ROOT_USERNAME: admin
+      # MONGO_INITDB_ROOT_PASSWORD: secretpassword
+    volumes:
+      # 🌟 核心：持久化挂载。把容器内的数据库文件挂载到你电脑本地的 mongo_data 文件夹。
+      # 这样哪怕你删了容器，你的房源扩展数据、看房申请日志也绝对不会丢失。
+      - mongo_data:/data/db
+
+  # 🛠️ MongoDB 可视化网页控制台（强烈推荐，比单独装客户端方便 100 倍）
+  mongo-express:
+    image: mongo-express
+    container_name: rentease-mongo-ui
+    restart: always
+    ports:
+      - "8081:8081" # 映射到本地 8081 端口
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb # 自动连接上面的 mongodb 服务
+      ME_CONFIG_MONGODB_PORT: 27017
 
 networks:
   rentease-network: # 💡 建立专属隔离的生产网络，模拟公有云 VPC
@@ -87,3 +115,4 @@ volumes:
   localstack:
   rabbitmq_data: # 声明数据卷
   redis_data:
+  mongo_data:
