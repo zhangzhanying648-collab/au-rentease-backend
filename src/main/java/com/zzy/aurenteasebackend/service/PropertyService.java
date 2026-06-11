@@ -3,27 +3,38 @@ package com.zzy.aurenteasebackend.service;
 import com.zzy.aurenteasebackend.domain.Property;
 import com.zzy.aurenteasebackend.dto.PropertySearchCriteria;
 import com.zzy.aurenteasebackend.repository.PropertyRepository;
+import com.zzy.aurenteasebackend.websocket.NotificationWebSocketHandler;
 import jakarta.persistence.Column;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
+@RequiredArgsConstructor
 public class PropertyService {
+    private static final Logger log = LoggerFactory.getLogger(PropertyService.class);
+
     private final PropertyRepository propertyRepository;
 
-    public PropertyService(PropertyRepository propertyRepository) {
-        this.propertyRepository = propertyRepository;
-    }
+    private final RedisTemplate<String, Object> redisTemplate; // 🌟 注入我们的 JSON Redis 模板
+
+    private static final String CACHE_KEY_PREFIX = "rentease:property:";
+
+
 
     public List<Property> searchProperties(PropertySearchCriteria criteria) {
         //root是实体类Property
@@ -79,8 +90,32 @@ public class PropertyService {
         return propertyRepository.findAll(specification);
     }
 
-    public Optional<Property> getPropertyById(Long id) {
-        return propertyRepository.findById(id);
+    /**
+     * 🌟 1. 读请求运用 Redis：经典的“旁路缓存（Cache-Aside Pattern）”
+     */
+    public Property getPropertyById(Long id) {
+//        return propertyRepository.findById(id);
+        String redisKey = CACHE_KEY_PREFIX + id;
+        // 🔍 第一步：先去 Redis 缓存里摸底
+        Property cachedProperty = (Property) redisTemplate.opsForValue().get(redisKey);
+        if (cachedProperty != null) {
+            log.info("🎯 [Redis 命中] 租客正在查看房源 #{}, 直接从 Redis 返回 JSON 缓存", id);
+            return cachedProperty;
+        }
+
+        // 🔍 第二步：Redis 没捞到，穿透去 MySQL 捞
+        log.warn("💾 [Redis 未命中] 房源 #{} 的缓存失效或首次访问，正在穿透至 MySQL 查询...", id);
+        Property mysqlProperty = propertyRepository.findById(id).orElse(null);
+
+        // 🔍 第三步：将 MySQL 捞出来的果实，顺手栽进 Redis，并设置过期时间（防止缓存雪崩/僵尸缓存）
+        if (mysqlProperty != null) {
+            // 设置 1 小时随机过期时间，防止大量缓存同一时刻集体失效导致雪崩
+            long expireTime = 60 + java.util.concurrent.ThreadLocalRandom.current().nextLong(30);
+            redisTemplate.opsForValue().set(redisKey, mysqlProperty, expireTime, TimeUnit.MINUTES);
+            log.info("📥 [Redis 补偿] 已将房源 #{} 的最新数据回填至 Redis, 有效期 {} 分钟", id, expireTime);
+        }
+
+        return mysqlProperty;
     }
 
     /**
@@ -88,6 +123,13 @@ public class PropertyService {
      */
     @Transactional
     public Property saveOrUpdateProperty(Long id, Property dto) {
+        // 如果是修改操作，为了防止读写并发引发脏数据，执行“先删缓存，再写库”或“写库成功，再删缓存”
+        if (id != null) {
+            String redisKey = CACHE_KEY_PREFIX + id;
+            redisTemplate.delete(redisKey);
+            log.info("🗑️ [Redis 一致性] 房东正在修改房源 #{}, 预先清除旧缓存大闸", id);
+        }
+
         Property property;
 
         // 1. 判断是新增还是更新操作
@@ -116,7 +158,14 @@ public class PropertyService {
         // 3. 执行物理保存：
         // 如果是全新 new 出来的，这里会发出 INSERT 语句
         // 如果是从 findById 捞出来的，这里会发出 UPDATE 语句
-        return propertyRepository.save(property);
+        Property savedProperty = propertyRepository.save(property);
+
+        // 🚀 核心动作：写库成功后，再次清除缓存（双删策略，防御极端的并发写干扰）
+        String redisKey = CACHE_KEY_PREFIX + savedProperty.getId();
+        redisTemplate.delete(redisKey);
+        log.info("🗑️ [Redis 一致性] 房源 #{} MySQL 写入成功，二次清除缓存，确保租客下一次必读最新数据", savedProperty.getId());
+
+        return savedProperty;
     }
 
     /**

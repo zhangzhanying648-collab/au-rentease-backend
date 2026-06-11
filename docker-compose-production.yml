@@ -65,6 +65,19 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq # 持久化队列和消息数据，防止容器重启后数据丢失
     networks:
       - rentease-network               # 确保与你的后端 Spring Boot 服务在同一个 Docker 网络下
+  redis:
+    image: redis:7.2-alpine # 使用轻量且稳定的 alpine 版本
+    container_name: rentease-redis # 容器名称，方便识别
+    restart: always # 遭遇崩溃或宿主机重启时自动拉起
+    ports:
+      - "6379:6379" # 映射物理机端口 : 容器内部端口
+    volumes:
+      - redis_data:/data # 数据持久化挂载，防止容器重启后数据丢失
+    command: redis-server --requirepass 666666 --appendonly yes
+    # 🌟 核心解释：
+    # --requirepass 后面跟你的 Redis 密码（建议改掉 YourSecurePassword123）
+    # --appendonly yes 开启 AOF 持久化，数据更安全
+
 networks:
   rentease-network: # 💡 建立专属隔离的生产网络，模拟公有云 VPC
     driver: bridge
@@ -73,3 +86,4 @@ volumes:
   pgdata:
   localstack:
   rabbitmq_data: # 声明数据卷
+  redis_data:

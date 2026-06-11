@@ -64,15 +64,21 @@ public class PropertyController {
     @GetMapping("/{id}")
     // 在获取单个房源详情的 Controller / Service 中：
     public ResponseEntity<Property> getPropertyById(@PathVariable Long id) {
-        Property property = propertyRepository.findById(id).get();
-        if(property == null){
+//        Property property = propertyRepository.findById(id).get();
+//        if(property == null){
+//            return ResponseEntity.notFound().build();
+//        }
+//        // 🌟 在这里！把数据库里的 Key 扔进你写好的签名官里，换取带有 1 小时时效、可被 <img> 直接渲染的绝对路径
+//        String secureViewUrl = fileStorageService.generateViewUrl(property.getImageUrl());
+//        property.setImageUrl(secureViewUrl); // 赋予 DTO
+//
+//        return ResponseEntity.ok(property); // 这样前端详情页就能直接拿到完美的物理高时效链接啦！
+        // 调用我们加装了 Redis 过滤网的读取方法
+        Property property = propertyService.getPropertyById(id);
+        if (property == null) {
             return ResponseEntity.notFound().build();
         }
-        // 🌟 在这里！把数据库里的 Key 扔进你写好的签名官里，换取带有 1 小时时效、可被 <img> 直接渲染的绝对路径
-        String secureViewUrl = fileStorageService.generateViewUrl(property.getImageUrl());
-        property.setImageUrl(secureViewUrl); // 赋予 DTO
-
-        return ResponseEntity.ok(property); // 这样前端详情页就能直接拿到完美的物理高时效链接啦！
+        return ResponseEntity.ok(property);
     }
 
     // 🚀 响应前端 LandlordDashboard 中：await api.post('/properties', formData);

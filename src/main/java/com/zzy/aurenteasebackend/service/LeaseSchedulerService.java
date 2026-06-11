@@ -54,12 +54,12 @@ public class LeaseSchedulerService {
      * 🧪 专门用于本地开发测试的定时任务
      * 机制：固定频率执行（Fixed Rate），每隔 10 秒钟执行一次，方便我们在控制台肉眼观测
      */
-    @Scheduled(fixedRate = 10000) // 10000 毫秒 = 10 秒
-    public void localDevelopmentTestTask() {
-        log.info("🔄 [测试定时任务] 滴答！10秒轮巡：正在检测是否有未支付的看房订金（Inspection Deposit）超时...");
-
-        // 此处可写检查逻辑：如果订金创建超过30分钟未支付，自动将房源状态回滚为“可申请（Available）”
-    }
+//    @Scheduled(fixedRate = 10000) // 10000 毫秒 = 10 秒
+//    public void localDevelopmentTestTask() {
+//        log.info("🔄 [测试定时任务] 滴答！10秒轮巡：正在检测是否有未支付的看房订金（Inspection Deposit）超时...");
+//
+//        // 此处可写检查逻辑：如果订金创建超过30分钟未支付，自动将房源状态回滚为“可申请（Available）”
+//    }
 
 
 }
