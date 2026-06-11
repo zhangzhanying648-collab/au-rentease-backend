@@ -64,6 +64,12 @@ public class RabbitMQConfig {
                 .deadLetterExchange(PROPERTY_DLQ_EXCHANGE)
                 // 🔒 优雅绑定死信路由键 (DLK)
                 .deadLetterRoutingKey(PROPERTY_DLQ_ROUTING_KEY)
+                //将此队列设定为有界队列，最大消息条数限制为 10000 条
+                .maxLength(10000)//
+                 //【可选大闸】：限制这个队列总物理大小最大为 1GMB，双重防爆
+//                .maxLengthBytes(1024 * 1024 * 1024)
+                // 🌟【丢弃策略设置】：当满载时，消息的处理态度（默认采取 drop-head 策略）
+//                .overflow(QueueBuilder.Overflow.rejectPublish)
                 .build();
     }
 
