@@ -127,7 +127,7 @@ services:
     container_name: rentease-grafana
     restart: always
     ports:
-      - "3000:3000" # 映射到本地 3000 端口，用来登录监控大厅
+      - "3002:3000" # 映射到本地 3000 端口，用来登录监控大厅
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin # 🌟 设置初始化管理员默认密码（账号是 admin）
     volumes:

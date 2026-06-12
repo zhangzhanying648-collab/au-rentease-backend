@@ -6,7 +6,9 @@ import com.zzy.aurenteasebackend.domain.User;
 import com.zzy.aurenteasebackend.repository.BookingRepository;
 import com.zzy.aurenteasebackend.repository.PropertyRepository;
 import com.zzy.aurenteasebackend.repository.UserRepository;
+import com.zzy.aurenteasebackend.service.BookingService;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,50 +21,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
+@RequiredArgsConstructor
 //但在真实的商业项目（如 RentEase）中，直接写 * 是大厂安全合规的大忌
 //@CrossOrigin(origins = "*") // 确保跨域畅通
 public class BookingController {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
-    private final PropertyRepository propertyRepository ;
-
-    public BookingController(BookingRepository bookingRepository, UserRepository userRepository, PropertyRepository propertyRepository) {
-        this.bookingRepository = bookingRepository;
-        this.userRepository = userRepository;
-        this.propertyRepository = propertyRepository;
-    }
-
-    public BookingRepository getBookingRepository() {
-        return bookingRepository;
-    }
+    private final BookingService bookingService;
 
 
     @PostMapping
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
-        // 🚀 大厂核心：利用你已经在 JwtAuthenticationFilter 里对齐的小账本，直接捞出当前合法的用户名[cite: 7]
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findByUsername(currentUsername)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + currentUsername));
-
-        String currentUserEmail = user.getEmail();
-
-
-        // 打印测试，看看是不是前端持牌登录的那个用户
-        System.out.println("当前收到来自用户 [" + currentUsername + "] 的看房预约申请！");
-        System.out.println("房源ID: " + request.getPropertyId() + ", 约看日期: " + request.getBookingDate());
-
-        Property property = propertyRepository.findById(request.getPropertyId())
-                .orElseThrow(() -> new RuntimeException("Property not found"));
-
-        Booking booking = new Booking();
-        booking.setProperty(property);
-        booking.setBookingDate(request.getBookingDate());
-        booking.setUserEmail(currentUserEmail); // 咱们上一步用 SecurityContext 抓到的安全 Email
-        booking.setStatus("PENDING");
-
-        // TODO: 在这里调用你的 BookingService.save(...) 落库
-        Booking saved = bookingRepository.save(booking);
+        bookingService.bookProperty(request);
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
@@ -71,7 +43,7 @@ public class BookingController {
     }
 
     @Data
-    static class BookingRequest {
+    public static class BookingRequest {
         private Long propertyId;
         private LocalDate bookingDate;
     }
