@@ -165,6 +165,14 @@ services:
       - ./logs:/var/log/app
       - ./promtail-config.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
+  # 🛰️ Jaeger 链路追踪可视化大厅
+  jaeger:
+    image: jaegertracing/all-in-one:1.47
+    container_name: rentease-jaeger
+    ports:
+      - "16686:16686" # Jaeger Web UI 界面端口
+      - "4318:4318"   # 接收 Spring Boot 发射 OTLP 数据的端口
+
 volumes:
   pgdata:
   localstack:

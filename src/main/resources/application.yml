@@ -85,3 +85,10 @@ management:
   metrics:
     tags:
       application: au-rentease-backend
+
+  tracing:
+    sampling:
+      probability: 1.0 # 🚀 100% 捕捉每一个进入系统的 HTTP 请求
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces # 往本地的 Jaeger 发射信号

@@ -162,6 +162,14 @@ services:
     command: -config.file=/etc/promtail/config.yml
     networks:
       - rentease-network
+  jaeger:
+    image: jaegertracing/all-in-one:1.47
+    container_name: rentease-jaeger
+    ports:
+      - "16686:16686" # Jaeger Web UI 界面端口
+      - "4318:4318"   # 接收 Spring Boot 发射 OTLP 数据的端口
+    networks:
+      - rentease-network
 
 networks:
   rentease-network: # 💡 建立专属隔离的生产网络，模拟公有云 VPC
