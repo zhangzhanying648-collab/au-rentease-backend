@@ -148,7 +148,23 @@ services:
       - rentease-network
     depends_on:
       - prometheus # 确保 Prometheus 启动后再拉起 Grafana
+  # 📂 Loki：日志存储与搜索引擎
+  loki:
+    image: grafana/loki:2.8.2
+    container_name: rentease-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
 
+  # 🚚 Promtail：日志抓取搬运工
+  promtail:
+    image: grafana/promtail:2.8.2
+    container_name: rentease-promtail
+    volumes:
+      # 🌟 核心：把你电脑本地的日志文件夹挂载进去，让 Promtail 去偷日志
+      - ./logs:/var/log/app
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
 volumes:
   pgdata:
   localstack:

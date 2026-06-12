@@ -33,25 +33,25 @@ services:
 
   # 🚀 3. 我们的 AU-RentEase 后端核心生产集装箱！
   # 💡 模拟大厂从私有仓库（5001端口）直接拉取镜像部署
-  rentease-backend:
-    image: localhost:5001/au-rentease-backend:v1.0.0
-    container_name: prod-rentease-backend-app
-    ports:
-      - "8080:8080" # 将内部生产端口暴露给你的笔记本电脑
-    restart: always # 💡 避坑：如果数据库没初始化好导致闪退，容器会自动重启直到连上为止
-    depends_on:
-      - postgres-db
-      - localstack
-    networks:
-      - rentease-network
-    # 💡 大厂核心避坑点：通过环境变量（Environment Variables）强行覆盖代码里的配置，完成零重构跨环境部署
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/rentease_db
-      - SPRING_DATASOURCE_USERNAME=rentease_admin
-      - SPRING_DATASOURCE_PASSWORD=123456
-      - AWS_S3_ENDPOINT=http://localstack:4566 # 💡 强行指向容器网络内部的 localstack 服务
-      - AWS_S3_BUCKET_NAME=rentease-property-photos
-      - AWS_REGION=ap-southeast-2
+#  rentease-backend:
+#    image: localhost:5001/au-rentease-backend:v1.0.0
+#    container_name: prod-rentease-backend-app
+#    ports:
+#      - "8080:8080" # 将内部生产端口暴露给你的笔记本电脑
+#    restart: always # 💡 避坑：如果数据库没初始化好导致闪退，容器会自动重启直到连上为止
+#    depends_on:
+#      - postgres-db
+#      - localstack
+#    networks:
+#      - rentease-network
+#    # 💡 大厂核心避坑点：通过环境变量（Environment Variables）强行覆盖代码里的配置，完成零重构跨环境部署
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/rentease_db
+#      - SPRING_DATASOURCE_USERNAME=rentease_admin
+#      - SPRING_DATASOURCE_PASSWORD=123456
+#      - AWS_S3_ENDPOINT=http://localstack:4566 # 💡 强行指向容器网络内部的 localstack 服务
+#      - AWS_S3_BUCKET_NAME=rentease-property-photos
+#      - AWS_REGION=ap-southeast-2
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
     container_name: au-rentease-rabbitmq
@@ -138,6 +138,31 @@ services:
     depends_on:
       - prometheus # 确保 Prometheus 启动后再拉起 Grafana
 
+  # 📂 Loki：日志存储与搜索引擎
+  loki:
+    image: grafana/loki:2.8.2
+    container_name: rentease-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      # 🌟 核心修复 2：把数据持久化，防止重启 Docker 后日志丢失
+      - loki_data:/loki
+    networks:
+      - rentease-network
+
+  # 🚚 Promtail：日志抓取搬运工
+  promtail:
+    image: grafana/promtail:2.8.2
+    container_name: rentease-promtail
+    volumes:
+      # 🌟 核心：把你电脑本地的日志文件夹挂载进去，让 Promtail 去偷日志
+      - ./logs:/var/log/app
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - rentease-network
+
 networks:
   rentease-network: # 💡 建立专属隔离的生产网络，模拟公有云 VPC
     driver: bridge
@@ -150,3 +175,4 @@ volumes:
   mongo_data:
   prometheus_data:
   grafana_data:
+  loki_data:
