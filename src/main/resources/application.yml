@@ -70,3 +70,13 @@ aws:
 logging:
   charset:
     console: UTF-8
+
+# 暴露所有监控端点（包含 prometheus 专用的数据流）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: au-rentease-backend

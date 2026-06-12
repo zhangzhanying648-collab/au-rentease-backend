@@ -212,4 +212,24 @@ public class PropertyController {
         Map<String, Object> fullDetails = propertyService.getFullPropertyDetails(id);
         return  fullDetails!=null?ResponseEntity.ok(fullDetails):ResponseEntity.notFound().build();
     }
+
+        @GetMapping("/test-cpu-monstrous")
+    public ResponseEntity<String> testCpuMonstrous() {
+        long startTime = System.currentTimeMillis();
+        log.warn("🔥 [压力测试] 算力黑洞已开启，正在疯狂压榨 CPU 和内存...");
+
+        // 让该线程死循环跑满 100 秒钟
+        while (System.currentTimeMillis() - startTime < 100000) {
+            // 1. 疯狂拼接字符串，制造大量内存垃圾对象，强迫 G1 垃圾回收器频繁出手
+            String garbage = "";
+            for (int i = 0; i < 100; i++) {
+                garbage += java.util.UUID.randomUUID().toString();
+            }
+            // 2. 密集进行 MD5 算力哈希，把单个 CPU 核心直接拉到 100%
+            org.springframework.util.DigestUtils.md5DigestAsHex(garbage.getBytes());
+        }
+
+        log.info("✅ [压力测试] 10秒算力压榨结束。");
+        return ResponseEntity.ok("CPU and Memory blast completed!");
+    }
 }

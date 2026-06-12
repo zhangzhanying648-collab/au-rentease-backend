@@ -118,6 +118,8 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth->auth
+                        // 🚀【核心新增】：将所有以 /actuator 开头的端点全部无条件放行
+                        .requestMatchers("/actuator/**").permitAll()
                         //精准放行 /ws/notifications 及其所有子路由，严防 Security 误伤
                         .requestMatchers("/ws/notifications", "/ws/notifications/**").permitAll()
                         .requestMatchers("/api/properties/search").permitAll()
