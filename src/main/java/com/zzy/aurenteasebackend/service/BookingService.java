@@ -8,10 +8,10 @@ import com.zzy.aurenteasebackend.repository.BookingRepository;
 import com.zzy.aurenteasebackend.repository.PropertyRepository;
 import com.zzy.aurenteasebackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,20 @@ public class BookingService {
 
     private static final String LOCK_PREFIX = "rentease:lock:property:";
 
+
+    public boolean tryBookingRateLimit() {
+        // 1. 获取一个针对具体业务（或特定用户）的限流器 Key
+        // 比如限制全网订房总 QPS，或者限制单个用户： "rate:limit:user:" + userId
+        RRateLimiter rateLimiter = redissonClient.getRateLimiter("rate:limit:booking:global");
+
+        // 2. 初始化限流规则（仅需初始化一次，后续直接读取）：
+        // RateType.OVERALL: 全局所有机器共享令牌
+        // 10: 每 1 秒发放 10 个令牌
+        rateLimiter.trySetRate(RateType.OVERALL, 10, 1, RateIntervalUnit.SECONDS);
+
+        // 3. 尝试获取 1 个令牌（不等待，拿不到立马返回 false）
+        return rateLimiter.tryAcquire(1);
+    }
 
     /**
      * 核心防超卖预订方法
@@ -95,9 +109,6 @@ public class BookingService {
         // TODO: 在这里调用你的 BookingService.save(...) 落库
         Booking saved = bookingRepository.save(booking);
         return saved;
-    }
-
-    private record Result(String currentUserEmail, Long propertyId) {
     }
 
 }

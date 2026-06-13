@@ -1,16 +1,12 @@
 package com.zzy.aurenteasebackend.controller;
 
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.zzy.aurenteasebackend.config.RabbitMQConfig;
-import com.zzy.aurenteasebackend.document.PropertyExtendDoc;
 import com.zzy.aurenteasebackend.domain.Property;
 import com.zzy.aurenteasebackend.dto.PropertyCompositePayload;
 import com.zzy.aurenteasebackend.dto.PropertySearchCriteria;
 import com.zzy.aurenteasebackend.repository.PropertyRepository;
-import com.zzy.aurenteasebackend.service.ApplicationService;
 import com.zzy.aurenteasebackend.service.FileStorageService;
 import com.zzy.aurenteasebackend.service.PropertyService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

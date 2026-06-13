@@ -9,7 +9,9 @@ import com.zzy.aurenteasebackend.repository.UserRepository;
 import com.zzy.aurenteasebackend.service.BookingService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +33,14 @@ public class BookingController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('TENANT') or hasRole('ADMIN')") // 🛡️ 垂直权限大闸
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
+        // 调用分布式限流判断
+        if (!bookingService.tryBookingRateLimit()) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body("Too many concurrent bookings across the system. Please wait.");
+        }
+
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
         bookingService.bookProperty(request);

@@ -1,5 +1,6 @@
 package com.zzy.aurenteasebackend.service;
 
+import com.zzy.aurenteasebackend.config.aspect.RateLimited;
 import com.zzy.aurenteasebackend.domain.Application;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -19,6 +20,7 @@ public class EmailService {
     private final JavaMailSender mailSender;
 
     @Async
+    @RateLimited(qps = 1.0) // 🌟 限制发邮件接口每秒最多被调用 1 次，完美保护你的 Gmail 账户不被拉黑！
     public void sendApplicationResultEmail(
             String toEmail, String propertyTitle, String status){
         try{
