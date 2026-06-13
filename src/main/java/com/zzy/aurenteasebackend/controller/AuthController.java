@@ -4,10 +4,9 @@ import com.zzy.aurenteasebackend.domain.User;
 import com.zzy.aurenteasebackend.service.AuthService;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -51,4 +50,9 @@ public class AuthController {
         private String password;
     }
 
+    @PostMapping("logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+        authService.revokeToken(authHeader);
+        return ResponseEntity.ok(Map.of("success", true, "message", "Logged out successfully. Token destroyed."));
+    }
 }

@@ -4,8 +4,10 @@ import com.zzy.aurenteasebackend.repository.UserRepository;
 import com.zzy.aurenteasebackend.security.JwtAuthenticationFilter;
 import com.zzy.aurenteasebackend.security.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,14 +30,16 @@ import static org.springframework.security.config.Customizer.withDefaults; // �
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // 极其重要：激活这个注解，@PreAuthorize 权限哨兵才会全面上岗执勤！
+@RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtService jwtService;
     private final UserRepository userRepository; // 💡 注入我们的用户数据库操作层
+    private final StringRedisTemplate stringRedisTemplate; // 🌟 引入 Redis 搬运工
 
-    public SecurityConfig(JwtService jwtService, UserRepository userRepository) {
-        this.jwtService = jwtService;
-        this.userRepository = userRepository;
-    }
+//    public SecurityConfig(JwtService jwtService, UserRepository userRepository) {
+//        this.jwtService = jwtService;
+//        this.userRepository = userRepository;
+//    }
 
     // 💡 核心：向 Spring Security 郑重宣告我们的用户数据来源！
     //告诉 Spring ：“请把我这个方法返回的对象上报给安全框架。这就是我们全项目独一无二的‘查户口专员’！”
@@ -132,11 +136,8 @@ public class SecurityConfig {
                 .sessionManagement(session->{
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository),
-                        UsernamePasswordAuthenticationFilter.class)
-
-
-;
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository,stringRedisTemplate),
+                        UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
